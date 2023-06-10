@@ -13,12 +13,12 @@ Si vuole realizzare il prototipo di un'applicazione distribuita di "Cooperative 
 
 In particolare:
 
-ogni utente può modificare l'immagine selezionando ("colorando") mediante il puntatore del mouse gli elementi della griglia (come mostrato nell'esempio fornito)
-le variazioni apportate da un utente devono essere opportunamente visualizzate anche dagli altri utenti, in  modo che tutti gli utenti vedano sempre il medesimo stato della griglia, in modo consistente.   In particolare:
-se un utente visualizza la griglia allo stato s, ogni altro utente deve aver visualizzato o visualizzare lo stato s
-se ev1 e ev2 sono due eventi che concernono la griglia per cui ev1 →  ev2  per un utente ui, allora ev1 →  ev2  per ogni altro utente uj
-gli utenti devono potersi aggiungere (e uscire)  dinamicamente, contattando uno qualsiasi degli utenti che già partecipano all'applicazione, in modo peer-to-peer [*]
-ogni utente deve poter percepire dove si trova il puntatore del mouse di tutti gli altri utenti che stanno collaborando
+	ogni utente può modificare l'immagine selezionando ("colorando") mediante il puntatore del mouse gli elementi della griglia (come mostrato nell'esempio fornito)
+	le variazioni apportate da un utente devono essere opportunamente visualizzate anche dagli altri utenti, in  modo che tutti gli utenti vedano sempre il medesimo stato della griglia, in modo consistente.   In particolare:
+		se un utente visualizza la griglia allo stato s, ogni altro utente deve aver visualizzato o visualizzare lo stato s
+		se ev1 e ev2 sono due eventi che concernono la griglia per cui ev1 →  ev2  per un utente ui, allora ev1 →  ev2  per ogni altro utente uj
+	gli utenti devono potersi aggiungere (e uscire)  dinamicamente, contattando uno qualsiasi degli utenti che già partecipano all'applicazione, in modo peer-to-peer [*]
+	ogni utente deve poter percepire dove si trova il puntatore del mouse di tutti gli altri utenti che stanno collaborando
 
 Si richiede di sviluppare una soluzione utilizzando un approccio basato su scambio di messaggi, attori distribuiti oppure MOM. 
 
