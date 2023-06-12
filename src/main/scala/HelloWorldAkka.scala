@@ -1,56 +1,83 @@
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
+import akka.actor.typed.{ActorSystem, Behavior, Terminated}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 
 import java.io.File
+import scala.annotation.tailrec
 import scala.io.Source
 
 object FileActor {
-  def apply(): Behavior[String] = Behaviors.receive { (ctx, msg) =>
-    ctx.log.info("Started!")
-    val source = Source.fromFile(msg)
-    try {
-      println(source.getLines().size + " - " + msg)
-    } finally {
-      source.close()
-    }
+  def apply(file: File): Behavior[File] = Behaviors.setup { _ =>
+    val source = Source.fromFile(file)
+    source.close()
     Behaviors.stopped
   }
 }
 
-// "Actor" module definition
-object DirectoryActor{
-  // "API", i.e. message that actors should received / send
-  def scanDirectory(directory: File, ctx: ActorContext[String]): Int = {
-    var count = 0
-    if (directory.exists() && directory.isDirectory) {
-      directory.listFiles().foreach {
-        case file: File if file.isFile && file.getName.endsWith(".java")=>
-          val child = ctx.spawn(FileActor(), file.getAbsolutePath.replaceAll("[^a-zA-Z0-9]", ""))
-          child ! file.getAbsolutePath
-          ctx.watch(child)
-          count += 1
-        case subDirectory: File if subDirectory.isDirectory => count += scanDirectory(subDirectory, ctx)
-        case _ =>
-      }
-    }
-    count
+object Common {
+  def makeChild(name: String, behavior: Behavior[File], ctx: ActorContext[File]): Int = {
+    val child = ctx.spawn(behavior, name.replaceAll("[^a-zA-Z0-9]", ""))
+    ctx.watch(child)
+    1
   }
+}
 
-  // Behaviour factory, i.e how the actor react to messages
-  def apply(count: Int): Behavior[String] = Behaviors.receive[String]{ (ctx, msg) =>
-      ctx.log.info("Started {}!", msg)
-      DirectoryActor(scanDirectory(new File(msg), ctx))
-    }.receiveSignal { case (_, Terminated(_)) =>
+object WaiterActor {
+  def apply(count: Int = 0): Behavior[File] = Behaviors.receiveSignal[File]{ case (_, Terminated(_)) =>
       count match {
         case 1 => Behaviors.stopped
-        case c =>
-          DirectoryActor(c - 1)
+        case c => WaiterActor(c - 1)
       }
     }
+}
+
+object DirectoryActor {
+  def scanDirectory(directory: File, ctx: ActorContext[File]): Int = {
+    @tailrec
+    def scanFiles(files: List[File], count: Int = 0): Int = files match {
+      case Nil => count
+      case head :: tail =>
+        head match {
+          case file: File if file.isFile && file.getName.endsWith(".java") =>
+            scanFiles(tail, count + Common.makeChild(file.getAbsolutePath, FileActor(file), ctx))
+          case subDirectory: File if subDirectory.isDirectory && subDirectory.listFiles().nonEmpty =>
+            scanFiles(tail, count + Common.makeChild(subDirectory.getAbsolutePath, DirectoryActor(subDirectory), ctx))
+          case _ =>
+            scanFiles(tail, count)
+        }
+    }
+
+    scanFiles(directory.listFiles().toList)
+  }
+
+  def apply(directory: File): Behavior[File] = Behaviors.setup[File] { ctx =>
+    WaiterActor(scanDirectory(directory, ctx))
+  }
+}
+
+object BootActor{
+  def apply(startTime: Long, directory: File): Behavior[File] = Behaviors.setup{ ctx =>
+    ctx.log.info("Started!")
+    Common.makeChild("Main", DirectoryActor(directory), ctx)
+    Behaviors.receiveSignal({ case (_, Terminated(_)) =>
+      ctx.log.info("Time to finish: " + (System.currentTimeMillis() - startTime) + "ms")
+      Behaviors.stopped
+    })
+  }
 }
 
 object HelloWorldAkkaTyped extends App {
-  val system: ActorSystem[String] = ActorSystem(DirectoryActor(0), name = "Main")
-  system ! "C:\\Users\\gugli\\Downloads\\TestFolder"
+  val directory: File = new File("C:\\Users\\gugli\\Downloads\\TestFolder")
+  val directoryFiles: Array[File] = directory.listFiles()
+  val finalMessage: String = if (directoryFiles == null) {
+    "Invalid directory selected"
+  } else if (directoryFiles.isEmpty) {
+    "The selected directory is empty"
+  //} else if (wrapperImpl.sizeClassificationListIsEmpty()) {
+  //  "No java files in the directory"
+  } else {
+    val system: ActorSystem[File] = ActorSystem(BootActor(System.currentTimeMillis(), directory), name = "Boot")
+    system ! new File("C:\\Users\\gugli\\Downloads\\TestFolder")
+    "Processing"
+  }
+  println(finalMessage)
 }
-
