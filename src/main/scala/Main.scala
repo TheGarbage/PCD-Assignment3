@@ -13,8 +13,8 @@ object Main extends App {
   //} else if (wrapperImpl.sizeClassificationListIsEmpty()) {
   //  "No java files in the directory"
   } else {
-    val system: ActorSystem[File] = ActorSystem(BootActor(System.currentTimeMillis(), directory), name = "Boot")
-    system ! new File("C:\\Users\\gugli\\Downloads\\TestFolder")
+    //val system: ActorSystem[File] = ActorSystem(BootActor(System.currentTimeMillis(), directory), name = "Boot")
+    //system ! new File("C:\\Users\\gugli\\Downloads\\TestFolder")
     "Processing"
   }
   println(finalMessage)

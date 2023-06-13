@@ -1,20 +1,45 @@
 package actors
 
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{Behavior, Terminated}
+import akka.actor.typed.{ActorRef, Behavior}
 
 import java.io.File
-import resources.{Common, Counters, Ranking}
+import resources.{Counters, Ranking, View}
 
 object BootActor{
-  def apply(startTime: Long, directory: File): Behavior[File] = Behaviors.setup{ ctx =>
-    ctx.log.info("Started!")
-    val rankingActor = ctx.spawn(RankingActor(Ranking(10)), "RankingActor")
-    val countersActor = ctx.spawn(CountersActor(Counters(100, 6)), "CounterActor")
-    Common.makeChild("Directory", DirectoryActor(directory, rankingActor, countersActor), ctx)
-    Behaviors.receiveSignal({ case (_, Terminated(_)) =>
-      ctx.log.info("Time to finish: " + (System.currentTimeMillis() - startTime) + "ms")
-      Behaviors.stopped
-    })
+
+  object Command extends Enumeration {
+    type Action = Value
+    val Start, Stop, Shutdown = Value
+  }
+
+  final case class Msg(d: String, n: Int, maxl: Int, ni: Int, command: Command.Action)
+
+  def apply(view: View, startActor: Option[ActorRef[String]] = None): Behavior[Msg] = Behaviors.receive{ (ctx, msg) =>
+    msg.command match {
+      case Command.Start =>
+        val directory: File = new File("C:\\Users\\gugli\\Downloads\\TestFolder")
+        val directoryFiles: Array[File] = directory.listFiles()
+        if (directoryFiles == null) {
+          view.setFinish("Invalid directory selected")
+        } else if (directoryFiles.isEmpty) {
+          view.setFinish("The selected directory is empty")
+        } else {
+          val ranking = Ranking(msg.n)
+          val newStartActor = ctx.spawn(StartActor(System.currentTimeMillis(), ranking, view, directory,
+            ctx.spawn(RankingActor(ranking, view), "RankingActor"),
+            ctx.spawn(CountersActor(Counters(msg.maxl, msg.ni), view), "CounterActor")), "StartActor")
+          return BootActor(view, Some(newStartActor))
+        }
+        Behaviors.same
+      case Command.Stop =>
+        startActor match {
+          case None =>
+          //case Some(newStartActor) => newStartActor ! "stopped"
+        }
+        BootActor(view)
+      case Command.Shutdown =>
+        Behaviors.stopped
+    }
   }
 }
