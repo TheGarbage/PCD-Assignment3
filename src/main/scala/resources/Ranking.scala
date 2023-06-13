@@ -1,7 +1,5 @@
 package resources
 
-import scala.util.Sorting
-
 case class Ranking(rankingList: List[String], maxSize: Int) {
   def put(item: String): (Ranking, Boolean) = if (rankingList.isEmpty) {
     (Ranking(item :: rankingList, maxSize), true)
