@@ -1,12 +1,15 @@
 package resources
 
+import actors.BootActor
+import akka.actor.typed.ActorSystem
+
 import java.awt.{BorderLayout, Color}
 import java.awt.event.{ActionEvent, ActionListener, WindowEvent, WindowListener}
 import javax.swing._
 import javax.swing.border.EmptyBorder
 import javax.swing.event.{ChangeEvent, ChangeListener, PopupMenuEvent, PopupMenuListener}
 
-case class View(title: String) extends JFrame(title) with ActionListener with WindowListener with ChangeListener with PopupMenuListener {
+case class View(titleText: String) extends JFrame(titleText) with ActionListener with WindowListener with ChangeListener with PopupMenuListener {
   // Text utilities
   private val rankingTitle = "-------------------   RANKING -------------------"
   private val intervalsTitle = "----------   INTERVALS DIVISION   ----------"
@@ -25,6 +28,8 @@ case class View(title: String) extends JFrame(title) with ActionListener with Wi
   private val startButton = new JButton("   Start   ")
   private val stopButton = new JButton("   Stop   ")
   private val fileChooser = new JFileChooser("/")
+
+  val system: ActorSystem[BootActor.Msg] = ActorSystem(BootActor(this), name = "Boot")
 
   initializeUI()
 
@@ -119,19 +124,19 @@ case class View(title: String) extends JFrame(title) with ActionListener with Wi
         processState.setText(" Waiting to start")
       }
     } else if (e.getSource == startButton) {
+      rankingText.setText(rankingTitle + "\n\n No Java Files")
+      intervalsText.setText(intervalsTitle + "\n\n No Java Files")
+      sendMessage(BootActor.Command.Start)
       setIdle(false)
-      // Inserisci il programma di start
     } else if (e.getSource == stopButton) {
-      // Inserisci stop
-      processState.setText(" Stopped")
-      setIdle(true)
+      sendMessage(BootActor.Command.Stop)
     }
   }
 
   override def windowOpened(e: WindowEvent): Unit = {}
 
   override def windowClosing(e: WindowEvent): Unit = {
-    // Inserisci chiusura
+    sendMessage(BootActor.Command.Stop)
     dispose()
     System.exit(0)
   }
@@ -209,6 +214,14 @@ case class View(title: String) extends JFrame(title) with ActionListener with Wi
   override def popupMenuWillBecomeInvisible(e: PopupMenuEvent): Unit = {}
 
   override def popupMenuCanceled(e: PopupMenuEvent): Unit = {}
+
+  def sendMessage(command: BootActor.Command.Action) : Unit =
+    system ! BootActor.Msg( if (startButton.isEnabled) {
+      fileChooser.getSelectedFile.getAbsolutePath
+    } else {
+      ""
+    }, n.getValue.asInstanceOf[Int], maxl.getValue.asInstanceOf[Int], ni.getSelectedItem.asInstanceOf[Int], command)
+
 }
 
 object View {

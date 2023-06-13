@@ -14,7 +14,7 @@ object DirectoryActor {
     1
   }
 
-  def scanDirectory(directory: File, ctx: ActorContext[File], rankingActor: ActorRef[String], countersActor: ActorRef[Int]): Int = {
+  def scanDirectory(directory: File, ctx: ActorContext[File], rankingActor: ActorRef[Option[String]], countersActor: ActorRef[Option[Int]]): Int = {
     @tailrec
     def scanFiles(files: List[File], count: Int = 0): Int = files match {
       case Nil => count
@@ -31,7 +31,7 @@ object DirectoryActor {
     scanFiles(directory.listFiles().toList)
   }
 
-  def apply(directory: File, rankingActor: ActorRef[String], countersActor: ActorRef[Int]): Behavior[File] = Behaviors.setup[File] { ctx =>
+  def apply(directory: File, rankingActor: ActorRef[Option[String]], countersActor: ActorRef[Option[Int]]): Behavior[File] = Behaviors.setup[File] { ctx =>
     WaiterActor(scanDirectory(directory, ctx, rankingActor, countersActor))
   }
 }

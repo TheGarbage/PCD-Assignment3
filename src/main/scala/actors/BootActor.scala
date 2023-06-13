@@ -4,7 +4,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 
 import java.io.File
-import resources.{Counters, Ranking, View}
+import resources.View
 
 object BootActor{
 
@@ -18,24 +18,22 @@ object BootActor{
   def apply(view: View, startActor: Option[ActorRef[String]] = None): Behavior[Msg] = Behaviors.receive{ (ctx, msg) =>
     msg.command match {
       case Command.Start =>
-        val directory: File = new File("C:\\Users\\gugli\\Downloads\\TestFolder")
+        val directory: File = new File(msg.d)
         val directoryFiles: Array[File] = directory.listFiles()
         if (directoryFiles == null) {
-          view.setFinish("Invalid directory selected")
+          view.setFinish(" Invalid directory selected")
+          Behaviors.same
         } else if (directoryFiles.isEmpty) {
-          view.setFinish("The selected directory is empty")
+          view.setFinish(" The selected directory is empty")
+          Behaviors.same
         } else {
-          val ranking = Ranking(msg.n)
-          val newStartActor = ctx.spawn(StartActor(System.currentTimeMillis(), ranking, view, directory,
-            ctx.spawn(RankingActor(ranking, view), "RankingActor"),
-            ctx.spawn(CountersActor(Counters(msg.maxl, msg.ni), view), "CounterActor")), "StartActor")
-          return BootActor(view, Some(newStartActor))
+          val newStartActor = ctx.spawn(StartActor(view, directory,msg.n, msg.maxl, msg.ni), System.currentTimeMillis() + "StartActor")
+          BootActor(view, Some(newStartActor))
         }
-        Behaviors.same
       case Command.Stop =>
         startActor match {
           case None =>
-          //case Some(newStartActor) => newStartActor ! "stopped"
+          case Some(newStartActor) => newStartActor ! "stop"
         }
         BootActor(view)
       case Command.Shutdown =>

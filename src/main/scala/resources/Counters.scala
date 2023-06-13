@@ -10,8 +10,6 @@ case class Counters(countersVector: Vector[Int], maxl: Int, ni: Int, count: Int)
     Counters(updatedRankingList, maxl, ni, count + 1)
   }
 
-  def read(): Vector[Int] = countersVector
-
   def makeCountersText(): String = {
     val textArray =
       if (ni < maxl) {

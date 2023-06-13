@@ -1,22 +1,19 @@
 package actors
 
-import akka.actor.typed.{ActorRef, Behavior, Terminated}
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import resources.{Common, Ranking, View}
+import resources.{Counters, Ranking, View}
 
 import java.io.File
 
 object StartActor {
-  def apply(startTime: Long, ranking: Ranking, view: View, directory: File, rankingActor: ActorRef[String], countersActor: ActorRef[Int]): Behavior[String] = Behaviors.setup { ctx =>
-    val child = ctx.spawn(DirectoryActor(directory, rankingActor, countersActor), "Directory")
+  def apply(view: View, directory: File, n: Int, maxl: Int, ni: Int): Behavior[String] = Behaviors.setup { ctx =>
+    val child = ctx.spawn(DirectoryActor(directory,
+      ctx.spawn(RankingActor(Ranking(n), view), System.currentTimeMillis() + "RankingActor"),
+      ctx.spawn(CountersActor(Counters(maxl, ni), view), System.currentTimeMillis() + "CounterActor")
+    ), System.currentTimeMillis() + "Directory")
     ctx.watch(child)
-    Behaviors.receiveSignal({ case (_, Terminated(_)) =>
-      view.setFinish(if(ranking.isEmpty)
-        "No java files in the directory"
-      else
-        "Time to finish: " + (System.currentTimeMillis() - startTime) + "ms"
-      )
-      Behaviors.stopped
-    })
+    view.setExecution(" Process...")
+    ProcessWaiter(System.currentTimeMillis(), view)
   }
 }
