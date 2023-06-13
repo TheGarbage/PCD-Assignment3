@@ -6,7 +6,7 @@ import javax.swing._
 import javax.swing.border.EmptyBorder
 import javax.swing.event.{ChangeEvent, ChangeListener, PopupMenuEvent, PopupMenuListener}
 
-class View(title: String) extends JFrame(title) with ActionListener with WindowListener with ChangeListener with PopupMenuListener {
+case class View(title: String) extends JFrame(title) with ActionListener with WindowListener with ChangeListener with PopupMenuListener {
   // Text utilities
   private val rankingTitle = "-------------------   RANKING -------------------"
   private val intervalsTitle = "----------   INTERVALS DIVISION   ----------"
@@ -212,5 +212,5 @@ class View(title: String) extends JFrame(title) with ActionListener with WindowL
 }
 
 object View {
-  def apply (name: String): View = View(name)
+  def apply (): View = View("Akka")
 }
