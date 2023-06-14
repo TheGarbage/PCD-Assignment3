@@ -1,21 +1,21 @@
 package actors
 
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import resources.{Common, Counters, View}
+import resources.{Common, Counters, Ranking, View}
 
 object CountersActor{
-  def apply(counters: Counters, view: View, time: Long = System.currentTimeMillis()): Behavior[Option[Int]] = Behaviors.receive{ (_, msg) => msg match {
+  def apply(counters: Counters, renderActor: ActorRef[(Option[Ranking],Option[Counters], Option[String])], time: Long = System.currentTimeMillis()): Behavior[Option[Int]] = Behaviors.receive{ (_, msg) => msg match {
     case None =>
-      view.setIntervalsText(counters.makeCountersText())
+      renderActor ! (None, Some(counters), None)
       Behaviors.stopped
     case Some(lines) =>
       val newCounters = counters.increment(lines)
       if (System.currentTimeMillis() - time > Common.MILLISECOND_UPDATE) {
-        view.setIntervalsText(newCounters.makeCountersText())
-        CountersActor(newCounters, view)
+        renderActor ! (None, Some(counters), None)
+        CountersActor(newCounters, renderActor)
       } else {
-        CountersActor(newCounters, view, time)
+        CountersActor(newCounters, renderActor, time)
       }
   }
   }

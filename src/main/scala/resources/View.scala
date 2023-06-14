@@ -1,6 +1,6 @@
 package resources
 
-import actors.BootActor
+import actors.{BootActor, MainActor}
 import akka.actor.typed.ActorSystem
 
 import java.awt.{BorderLayout, Color}
@@ -29,7 +29,7 @@ case class View(titleText: String) extends JFrame(titleText) with ActionListener
   private val stopButton = new JButton("   Stop   ")
   private val fileChooser = new JFileChooser("/")
 
-  val system: ActorSystem[BootActor.Msg] = ActorSystem(BootActor(this), name = "Boot")
+  val system: ActorSystem[MainActor.Msg] = ActorSystem(BootActor(this), name = "Boot")
 
   initializeUI()
 
@@ -126,17 +126,18 @@ case class View(titleText: String) extends JFrame(titleText) with ActionListener
     } else if (e.getSource == startButton) {
       rankingText.setText(rankingTitle + "\n\n No Java Files")
       intervalsText.setText(intervalsTitle + "\n\n No Java Files")
-      sendMessage(BootActor.Command.Start)
+      processState.setText(" Process")
+      sendMessage(MainActor.Command.Start)
       setIdle(false)
     } else if (e.getSource == stopButton) {
-      sendMessage(BootActor.Command.Stop)
+      sendMessage(MainActor.Command.Stop)
     }
   }
 
   override def windowOpened(e: WindowEvent): Unit = {}
 
   override def windowClosing(e: WindowEvent): Unit = {
-    sendMessage(BootActor.Command.Stop)
+    sendMessage(MainActor.Command.Stop)
     dispose()
     System.exit(0)
   }
@@ -179,10 +180,6 @@ case class View(titleText: String) extends JFrame(titleText) with ActionListener
     setIdle(true)
   }
 
-  def setExecution(text: String): Unit = {
-    SwingUtilities.invokeLater(() => processState.setText(text))
-  }
-
   def setIntervalsText(text: String): Unit = {
     SwingUtilities.invokeLater(() => intervalsText.setText(text))
   }
@@ -215,8 +212,8 @@ case class View(titleText: String) extends JFrame(titleText) with ActionListener
 
   override def popupMenuCanceled(e: PopupMenuEvent): Unit = {}
 
-  def sendMessage(command: BootActor.Command.Action) : Unit =
-    system ! BootActor.Msg( if (startButton.isEnabled) {
+  def sendMessage(command: MainActor.Command.Action) : Unit =
+    system ! MainActor.Msg( if (startButton.isEnabled) {
       fileChooser.getSelectedFile.getAbsolutePath
     } else {
       ""

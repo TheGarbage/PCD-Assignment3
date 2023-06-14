@@ -1,19 +1,19 @@
 package actors
 
-import akka.actor.typed.Behavior
+import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import resources.{Common, Ranking, View}
+import resources.{Common, Counters, Ranking, View}
 object RankingActor{
-  def apply(ranking: Ranking, view: View, time: Long = System.currentTimeMillis()): Behavior[Option[String]] = Behaviors.receive{ (_, msg) => msg match {
+  def apply(ranking: Ranking, renderActor: ActorRef[(Option[Ranking],Option[Counters], Option[String])], time: Long = System.currentTimeMillis()): Behavior[Option[String]] = Behaviors.receive{ (_, msg) => msg match {
     case None =>
-      view.setRankingText(ranking.makeRankingText())
+      renderActor ! (Some(ranking), None, None)
       Behaviors.stopped
     case Some(file) => val (updatedRanking, bool) = ranking.put(file)
       if (bool && System.currentTimeMillis() - time > Common.MILLISECOND_UPDATE) {
-        view.setRankingText(updatedRanking.makeRankingText())
-        RankingActor(updatedRanking, view)
+        renderActor ! (Some(updatedRanking), None, None)
+        RankingActor(updatedRanking, renderActor)
       } else {
-        RankingActor(updatedRanking, view, time)
+        RankingActor(updatedRanking, renderActor, time)
       }
   }
   }

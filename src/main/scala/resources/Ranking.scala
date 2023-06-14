@@ -4,7 +4,7 @@ case class Ranking(rankingList: List[String], maxSize: Int) {
   def put(item: String): (Ranking, Boolean) = if (rankingList.isEmpty) {
     (Ranking(item :: rankingList, maxSize), true)
   } else {
-    val (before, after) = rankingList.span(_ > item)
+    val (before, after) = rankingList.span(_ >= item)
     val toAdd = after.nonEmpty
     if (toAdd) {
       (Ranking( if (rankingList.size == maxSize) {
