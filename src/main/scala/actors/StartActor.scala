@@ -8,12 +8,13 @@ import java.io.File
 
 object StartActor {
   def apply(view: View, directory: File, n: Int, maxl: Int, ni: Int): Behavior[String] = Behaviors.setup { ctx =>
-    val child = ctx.spawn(DirectoryActor(directory,
-      ctx.spawn(RankingActor(Ranking(n), view), System.currentTimeMillis() + "RankingActor"),
-      ctx.spawn(CountersActor(Counters(maxl, ni), view), System.currentTimeMillis() + "CounterActor")
-    ), System.currentTimeMillis() + "Directory")
-    ctx.watch(child)
+    val rankingActor = ctx.spawn(RankingActor(Ranking(n), view), System.currentTimeMillis() + "RankingActor")
+    ctx.watch(rankingActor)
+    val countersActor = ctx.spawn(CountersActor(Counters(maxl, ni), view), System.currentTimeMillis() + "CounterActor")
+    ctx.watch(countersActor)
+    val directoryActor = ctx.spawn(DirectoryActor(directory, rankingActor, countersActor), System.currentTimeMillis() + "Directory")
+    ctx.watch(directoryActor)
     view.setExecution(" Process...")
-    ProcessWaiter(System.currentTimeMillis(), view)
+    ProcessWaiterActor(System.currentTimeMillis(), view, rankingActor, countersActor)
   }
 }

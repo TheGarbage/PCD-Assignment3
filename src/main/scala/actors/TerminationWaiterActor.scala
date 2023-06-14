@@ -5,11 +5,11 @@ import akka.actor.typed.{Behavior, Terminated}
 
 import java.io.File
 
-object WaiterActor {
-  def apply(count: Int): Behavior[File] = Behaviors.receiveSignal { case (_, Terminated(_)) =>
+object TerminationWaiterActor {
+  def apply(count: Int = 2): Behavior[String] = Behaviors.receiveSignal{ case (_, Terminated(_)) =>
     count match {
       case 1 => Behaviors.stopped
-      case c => WaiterActor(c - 1)
+      case c => TerminationWaiterActor(c - 1)
     }
   }
 }
