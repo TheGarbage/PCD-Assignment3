@@ -22,16 +22,12 @@ public class PixelGrid {
 	public void set(final int x, final int y, final int color) {
 		grid[y][x] = color;
 	}
-	
 	public int get(int x, int y) {
 		return grid[y][x];
 	}
-	
 	public int getNumRows() {
 		return this.nRows;
 	}
-	
-
 	public int getNumColumns() {
 		return this.nColumns;
 	}

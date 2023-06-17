@@ -1,3 +1,4 @@
-[debug] not up to date. inChanged = true, force = false
+[warn] akka-actor-typed_3-2.8.2-sources.jar no longer exists at C:\Users\gugli\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\com\typesafe\akka\akka-actor-typed_3\2.8.2\akka-actor-typed_3-2.8.2-sources.jar
+[debug] not up to date. inChanged = false, force = false
 [debug] Updating ProjectRef(uri("file:/G:/Il%20mio%20Drive/Università/Magistrale/Non_Date/Programmazione%20concorrente/PCD-Assignment3/"), "root")...
 [debug] Done updating ProjectRef(uri("file:/G:/Il%20mio%20Drive/Università/Magistrale/Non_Date/Programmazione%20concorrente/PCD-Assignment3/"), "root")

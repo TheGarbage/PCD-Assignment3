@@ -13,8 +13,8 @@ public class PixelArtMain {
 		var brushManager = new BrushManager();
 		var localBrush = new BrushManager.Brush(0, 0, randomColor());
 		var fooBrush = new BrushManager.Brush(0, 0, randomColor());
-		brushManager.addBrush(localBrush);
-		brushManager.addBrush(fooBrush);
+		brushManager.addBrush(1, localBrush);
+		brushManager.addBrush(2, fooBrush);
 		PixelGrid grid = new PixelGrid(40,40);
 
 		Random rand = new Random();

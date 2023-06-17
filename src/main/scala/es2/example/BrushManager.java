@@ -2,15 +2,15 @@ package es2.example;
 
 
 import java.awt.*;
-import java.util.List;
+import java.util.HashMap;
 
 public class BrushManager {
     private static final int BRUSH_SIZE = 10;
     private static final int STROKE_SIZE = 2;
-    private List<Brush> brushes = new java.util.ArrayList<>();
+    private HashMap<Integer,Brush> brushes = new java.util.HashMap<>();
 
     void draw(final Graphics2D g) {
-        brushes.forEach(brush -> {
+        brushes.forEach((key, brush) -> {
             g.setColor(new Color(brush.color));
             var circle = new java.awt.geom.Ellipse2D.Double(brush.x - BRUSH_SIZE / 2.0, brush.y - BRUSH_SIZE / 2.0, BRUSH_SIZE, BRUSH_SIZE);
             // draw the polygon
@@ -21,12 +21,16 @@ public class BrushManager {
         });
     }
 
-    void addBrush(final Brush brush) {
-        brushes.add(brush);
+    public void addBrush(final int key, final Brush brush) {
+        brushes.put(key, brush);
     }
 
-    void removeBrush(final Brush brush) {
-        brushes.remove(brush);
+    public Brush getBrush(final int key) {
+        return brushes.get(key);
+    }
+
+    void reset() {
+        brushes = new java.util.HashMap<>();
     }
 
     public static class Brush {

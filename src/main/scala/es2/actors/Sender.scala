@@ -5,26 +5,30 @@ import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.ClusterEvent
 import com.typesafe.config.ConfigFactory
-import es2.resources.Message
+import es2.example.{BrushManager, PixelGrid}
+import es2.resources.Message.{Command, Msg}
+import es2.resources.Methods
 
 object Sender {
-  final case class Msg() extends Message
 
-  val Service: ServiceKey[Receiver.Command] = ServiceKey[Receiver.Command]("Receiver")
+  val Service: ServiceKey[Msg] = ServiceKey[Msg]("Receiver")
 
-  private def senderBehavior(reveiverList: List[ActorRef[Receiver.Command]] = List.empty): Behavior[Msg | Receptionist.Listing] = Behaviors.receive {
-    (ctx, msg) => msg match
-      case msg: Receptionist.Listing =>
-        println("nuovo actor " + msg.serviceInstances(Service).toList.size)
-        senderBehavior(msg.serviceInstances(Service).toList)
-      case _ =>
-        reveiverList.foreach(_ ! Receiver.Command(1))
-        Behaviors.same
+  private def senderBehavior(id: Integer, child: ActorRef[Msg], reveiverList: List[ActorRef[Msg]] = List.empty): Behavior[Msg | Receptionist.Listing] = Behaviors.receiveMessage {
+    case msg: Receptionist.Listing =>
+      println( msg.serviceInstances(Service).toList.size )
+      msg.serviceInstances(Service).toList.foreach(receiver =>
+        if (!reveiverList.contains(receiver))
+          child ! Msg(Command.sendInit, None, None, None, None, None, Some(receiver)))
+      senderBehavior(id, child, msg.serviceInstances(Service).toList)
+    case msg: Msg =>
+      reveiverList.foreach(_ ! msg)
+      Behaviors.same
   }
 
-  def apply(): Behavior[Msg | Receptionist.Listing] = Behaviors.setup { ctx =>
+  def apply(id: Integer): Behavior[Msg | Receptionist.Listing] = Behaviors.setup { ctx =>
     ctx.system.receptionist ! Receptionist.subscribe(Service, ctx.self)
-    ctx.spawn(Receiver(), "Receiver")
-    senderBehavior()
+    val brushes = new BrushManager()
+    val grid = new PixelGrid(40, 40);
+    senderBehavior(id, ctx.spawn(Receiver(id, grid, brushes, Methods.initView(ctx.self, id, grid, brushes)), "Receiver"))
   }
 }
