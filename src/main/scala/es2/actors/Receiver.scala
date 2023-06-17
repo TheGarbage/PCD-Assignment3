@@ -17,7 +17,7 @@ object Receiver {
       case Command.brushColorChange =>
         brushes.getBrush(msg.id.get).setColor(msg.color.get)
       case Command.gridColorChange =>
-        grid.set(msg.x.get, msg.y.get, brushes.getBrush(msg.id.get).getColor())
+        grid.set(msg.x.get, msg.y.get, brushes.getBrush(msg.id.get).getColor)
       case Command.mousePositionChange =>
         brushes.getBrush(msg.id.get).updatePosition(msg.x.get, msg.y.get)
       case Command.init =>
@@ -27,7 +27,7 @@ object Receiver {
         val brush = brushes.getBrush(id)
         msg.receiver.get ! Msg(Command.init, Some(brush.getX), Some(brush.getY), Some(id), Some(brush.getColor), Some(grid), None)
       case _ =>
-    view.refresh()    
+    view.refresh()
     Behaviors.same
   }
   

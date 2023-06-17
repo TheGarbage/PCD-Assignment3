@@ -28,7 +28,7 @@ object Sender {
   def apply(id: Integer): Behavior[Msg | Receptionist.Listing] = Behaviors.setup { ctx =>
     ctx.system.receptionist ! Receptionist.subscribe(Service, ctx.self)
     val brushes = new BrushManager()
-    val grid = new PixelGrid(40, 40);
+    val grid = new PixelGrid(40, 40)
     senderBehavior(id, ctx.spawn(Receiver(id, grid, brushes, Methods.initView(ctx.self, id, grid, brushes)), "Receiver"))
   }
 }
