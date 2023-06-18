@@ -12,6 +12,9 @@ import scala.util.Random
 
 object Receiver {
 
+  val LOCAL_BRUSH_TRASPARENCY = 255
+  val OTHERS_BRUSH_TRASPARENCY = 128
+
   def receiverBehavior(grid: PixelGrid, brushes: BrushManager): Behavior[Msg] = Behaviors.receive{ (ctx, msg) =>
     msg.command match
       case Command.brushColorChange =>
@@ -21,7 +24,7 @@ object Receiver {
       case Command.mousePositionChange =>
         brushes.getBrush(msg.id.get).updatePosition(msg.x.get, msg.y.get)
       case Command.init =>
-        brushes.addBrush(msg.id.get,  new BrushManager.Brush(msg.x.get, msg.y.get, msg.color.get))
+        brushes.addBrush(msg.id.get,  new BrushManager.Brush(msg.x.get, msg.y.get, msg.color.get, OTHERS_BRUSH_TRASPARENCY))
         Methods.updateGrid(grid, msg.grid.get)
       case Command.sendInit if msg.receiver.get != ctx.self =>
         val id = Methods.getReceiverId(ctx.self)
@@ -35,9 +38,8 @@ object Receiver {
   
   def apply(grid: PixelGrid, brushes: BrushManager): Behavior[Msg] = Behaviors.setup {
     ctx =>
-      println(ctx.self.toString.split("#")(1))
       ctx.system.receptionist ! Receptionist.register(Sender.Service, ctx.self)
-      brushes.addBrush(Methods.getReceiverId(ctx.self), new BrushManager.Brush(0, 0, new Random().nextInt(256 * 256 * 256)))
+      brushes.addBrush(Methods.getReceiverId(ctx.self), new BrushManager.Brush(0, 0, new Random().nextInt(256 * 256 * 256), LOCAL_BRUSH_TRASPARENCY))
       receiverBehavior(grid, brushes)
   }
 }
