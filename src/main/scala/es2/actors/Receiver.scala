@@ -33,6 +33,7 @@ object Receiver {
   
   def apply(id: Int, grid: PixelGrid, brushes: BrushManager, view: PixelGridView): Behavior[Msg] = Behaviors.setup {
     ctx =>
+      println(ctx.self.toString.split("#")(1))
       ctx.system.receptionist ! Receptionist.register(Sender.Service, ctx.self)
       brushes.addBrush(id, new BrushManager.Brush(0, 0, new Random().nextInt(256 * 256 * 256)))
       receiverBehavior(id, grid, brushes, view)

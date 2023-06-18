@@ -55,3 +55,5 @@ object Methods:
         if (myGrid.get(i, j) != otherGrid.get(i, j) && myGrid.get(i, j) == 0)
           myGrid.set(i, j, otherGrid.get(i, j))
   }
+
+  def getReceverId(actorRef: ActorRef[Msg]): String = actorRef.toString.split("#")(1)
