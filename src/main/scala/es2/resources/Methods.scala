@@ -26,7 +26,7 @@ object Methods:
       val config = ConfigFactory
         .parseString(s"""akka.remote.artery.canonical.port=$port""")
         .withFallback(ConfigFactory.load("cluster"))
-      val system = ActorSystem(Sender(port), "ClusterSystem", config)
+      val system = ActorSystem(Sender(), "ClusterSystem", config)
       val seed = AddressFromURIString.parse(s"akka://ClusterSystem@127.0.0.1:$DEFAULT_PORT")
       Cluster(system).manager ! Join(seed)
     } catch {
@@ -56,4 +56,4 @@ object Methods:
           myGrid.set(i, j, otherGrid.get(i, j))
   }
 
-  def getReceverId(actorRef: ActorRef[Msg]): String = actorRef.toString.split("#")(1)
+  def getReceverId(actorRef: ActorRef[Msg]): Int = actorRef.toString.split("#")(1).split("]")(0).toInt

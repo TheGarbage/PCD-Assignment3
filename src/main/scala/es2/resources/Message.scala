@@ -7,7 +7,7 @@ import es2.example.PixelGrid
 object Message:
   object Command extends Enumeration {
     type Action = Value
-    val init, sendInit, brushColorChange, gridColorChange, mousePositionChange = Value
+    val init, sendInit, brushColorChange, gridColorChange, mousePositionChange, removeBrush = Value
   }
 
   final case class Msg(command: Command.Action,

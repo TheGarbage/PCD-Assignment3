@@ -29,8 +29,8 @@ public class BrushManager {
         return brushes.get(key);
     }
 
-    void reset() {
-        brushes = new java.util.HashMap<>();
+    public void removeBrush(final int key) {
+        brushes.remove(key);
     }
 
     public static class Brush {
