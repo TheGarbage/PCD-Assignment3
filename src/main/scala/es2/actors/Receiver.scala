@@ -24,7 +24,7 @@ object Receiver {
         brushes.addBrush(msg.id.get,  new BrushManager.Brush(msg.x.get, msg.y.get, msg.color.get))
         Methods.updateGrid(grid, msg.grid.get)
       case Command.sendInit if msg.receiver.get != ctx.self =>
-        val id = Methods.getReceverId(ctx.self)
+        val id = Methods.getReceiverId(ctx.self)
         val brush = brushes.getBrush(id)
         msg.receiver.get ! Msg(Command.init, Some(brush.getX), Some(brush.getY), Some(id), Some(brush.getColor), Some(grid), None)
       case Command.removeBrush =>
@@ -37,7 +37,7 @@ object Receiver {
     ctx =>
       println(ctx.self.toString.split("#")(1))
       ctx.system.receptionist ! Receptionist.register(Sender.Service, ctx.self)
-      brushes.addBrush(Methods.getReceverId(ctx.self), new BrushManager.Brush(0, 0, new Random().nextInt(256 * 256 * 256)))
+      brushes.addBrush(Methods.getReceiverId(ctx.self), new BrushManager.Brush(0, 0, new Random().nextInt(256 * 256 * 256)))
       receiverBehavior(grid, brushes)
   }
 }

@@ -24,7 +24,7 @@ object Sender {
         else
           receiverList.foreach(receiver =>
             if (!updateReveiverList.contains(receiver))
-              childReceiver ! Msg(Command.removeBrush, None, None, Some(Methods.getReceverId(receiver)), None, None, None)
+              childReceiver ! Msg(Command.removeBrush, None, None, Some(Methods.getReceiverId(receiver)), None, None, None)
           )
         senderBehavior(childReceiver, updateReveiverList)
       case msg: Msg =>
@@ -40,7 +40,7 @@ object Sender {
     val brushes = new BrushManager()
     val grid = new PixelGrid(40, 40)
     val childReceiver = ctx.spawn(Receiver(grid, brushes), "Receiver")
-    ctx.spawn(Refresher(Methods.initView(ctx.self, Methods.getReceverId(childReceiver), grid, brushes)), "Refresher")
+    ctx.spawn(Refresher(Methods.initView(ctx.self, Methods.getReceiverId(childReceiver), grid, brushes)), "Refresher")
     senderBehavior(childReceiver)
   }
 }

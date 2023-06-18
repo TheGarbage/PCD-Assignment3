@@ -18,7 +18,7 @@ import scala.annotation.tailrec
 
 
 object Methods:
-  val DEFAULT_PORT = 2551
+  private val DEFAULT_PORT = 2551
 
   @tailrec
   def startup(port: Int = DEFAULT_PORT, clusterPort: Int = DEFAULT_PORT): Unit = {
@@ -56,4 +56,4 @@ object Methods:
           myGrid.set(i, j, otherGrid.get(i, j))
   }
 
-  def getReceverId(actorRef: ActorRef[Msg]): Int = actorRef.toString.split("#")(1).split("]")(0).toInt
+  def getReceiverId(actorRef: ActorRef[Msg]): Int = actorRef.toString.split("#")(1).split("]")(0).toInt
