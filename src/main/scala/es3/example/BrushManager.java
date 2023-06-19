@@ -27,6 +27,10 @@ public class BrushManager implements BrushManagerRemote { // Modificato
         return keyCount++;
     }
 
+    public void updateBrush(final int Key, final Brush brush){ // Modificato
+        brushes.put(Key, brush);
+    }
+
     public void removeBrush(final int key) { // Modificato
         brushes.remove(key);
     }

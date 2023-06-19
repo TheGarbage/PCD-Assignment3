@@ -19,39 +19,37 @@ public class rmiClient {
             BrushManagerRemote brushManager = (BrushManagerRemote) registry.lookup("BrushManager");
             PixelGridRemote pixelGrid = (PixelGridRemote) registry.lookup("PixelGrid");
 
-            int brushKey = brushManager.addBrush(new BrushManager.Brush(0, 0, SupportClass.randomColor()));
+            BrushManager.Brush localBrush = new BrushManager.Brush(0, 0, SupportClass.randomColor());
+            int brushKey = brushManager.addBrush(localBrush);
 
             PixelGridView view = new PixelGridView(pixelGrid, brushManager, brushKey, 600, 600);
 
-            view.addMouseMovedListener((x, y) -> {
-                try {
-                    brushManager.updateBrushPosition(brushKey, x, y);
-                } catch (RemoteException e) {
-                    System.err.println("MouseMovedListener exception: " + e.toString());
-                    e.printStackTrace();
-                }
-            });
+            view.addMouseMovedListener(localBrush::updatePosition);
 
             view.addPixelGridEventListener((x, y) -> {
                 try {
-                    pixelGrid.set(x, y, brushManager.getBrushColor(brushKey));
+                    pixelGrid.set(x, y, localBrush.getColor());
                 } catch (RemoteException e) {
                     System.err.println("PixelGridEventListener exception: " + e.toString());
                     e.printStackTrace();
                 }
             });
 
-            view.addColorChangedListener(color -> {
-                try {
-                    brushManager.updateBrushColor(brushKey, color);
-                } catch (RemoteException e) {
-                System.err.println("ColorChangedListener exception: " + e.toString());
-                e.printStackTrace();
-                }
-            });
+            view.addColorChangedListener(localBrush::setColor);
 
             view.display();
-            new Thread(SupportClass.viewRefresh(view)).start();
+            new Thread(() -> {
+                while(true) {
+                    try {
+                        Thread.sleep(10);
+                        brushManager.updateBrush(brushKey, localBrush);
+                    } catch (InterruptedException | RemoteException e) {
+                        System.err.println("RefreshThread exception: " + e.toString());
+                        e.printStackTrace();
+                    }
+                    view.refresh();
+                }
+            }).start();
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
