@@ -29,6 +29,7 @@
     <orderEntry type="library" name="sbt: com.github.jnr:jnr-constants:0.10.4:jar" level="project" />
     <orderEntry type="library" name="sbt: com.github.jnr:jnr-ffi:2.2.13:jar" level="project" />
     <orderEntry type="library" name="sbt: com.github.jnr:jnr-x86asm:1.0.2:jar" level="project" />
+    <orderEntry type="library" name="sbt: com.google.code.gson:gson:2.8.2:jar" level="project" />
     <orderEntry type="library" name="sbt: com.hierynomus:asn-one:0.6.0:jar" level="project" />
     <orderEntry type="library" name="sbt: com.thoughtworks.paranamer:paranamer:2.8:jar" level="project" />
     <orderEntry type="library" name="sbt: com.typesafe.akka:akka-actor-typed_3:2.8.2:jar" level="project" />

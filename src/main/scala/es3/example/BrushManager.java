@@ -1,36 +1,49 @@
 package es3.example;
 
+import com.hierynomus.asn1.encodingrules.ber.BERDecoder;
+import es3.remoteInterfaces.BrushManagerRemote;
 
 import java.awt.*;
-import java.rmi.Remote;
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class BrushManager implements Remote { // Modificato
-    private static final int BRUSH_SIZE = 10;
-    private static final int STROKE_SIZE = 2;
-    private List<Brush> brushes = new java.util.ArrayList<>();
+import com.google.gson.Gson;
 
-    void draw(final Graphics2D g) {
-        brushes.forEach(brush -> {
-            g.setColor(new Color(brush.color));
-            var circle = new java.awt.geom.Ellipse2D.Double(brush.x - BRUSH_SIZE / 2.0, brush.y - BRUSH_SIZE / 2.0, BRUSH_SIZE, BRUSH_SIZE);
-            // draw the polygon
-            g.fill(circle);
-            g.setStroke(new BasicStroke(STROKE_SIZE));
-            g.setColor(Color.BLACK);
-            g.draw(circle);
-        });
+public class BrushManager implements BrushManagerRemote { // Modificato
+    public static final int BRUSH_SIZE = 10; // Modificato
+    public static final int STROKE_SIZE = 2; // Modificato
+    private HashMap<Integer, Brush> brushes = new HashMap(); // Modificato
+    private int keyCount = 0;
+
+    public HashMap<Integer, Brush> getBrushes(){ // Modificato
+        return (HashMap<Integer, Brush>)brushes.clone();
     }
 
-    void addBrush(final Brush brush) {
-        brushes.add(brush);
+    public int addBrush(final Brush brush) { // Modificato
+        brushes.put(keyCount, brush);
+        return keyCount++;
     }
 
-    void removeBrush(final Brush brush) {
-        brushes.remove(brush);
+    public void removeBrush(final int key) { // Modificato
+        brushes.remove(key);
     }
 
-    public static class Brush implements Remote{ // Modificato
+    public void updateBrushPosition(final int key, final int x, final int y){ // Modificato
+        brushes.get(key).updatePosition(x, y);
+    }
+
+    public void updateBrushColor(final int key, final int color){ // Modificato
+        brushes.get(key).setColor(color);
+    }
+
+    public int getBrushColor(int key){ // Modificato
+        return brushes.get(key).getColor();
+    }
+
+    public static class Brush implements Serializable { // Modificato
         private int x, y;
         private int color;
 
@@ -44,6 +57,7 @@ public class BrushManager implements Remote { // Modificato
             this.x = x;
             this.y = y;
         }
+
         // write after this getter and setters
         public int getX(){
             return this.x;

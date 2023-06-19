@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion,
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
   "com.typesafe.akka" %% "akka-serialization-jackson" % akkaVersion,
-  "com.typesafe.akka" %% "akka-cluster-typed" % akkaVersion
+  "com.typesafe.akka" %% "akka-cluster-typed" % akkaVersion,
+  "com.google.code.gson" % "gson" % "2.8.2"
 )

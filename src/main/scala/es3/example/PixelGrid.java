@@ -1,9 +1,10 @@
 package es3.example;
 
-import java.rmi.Remote;
+import es3.remoteInterfaces.PixelGridRemote;
+
 import java.util.Arrays;
 
-public class PixelGrid implements Remote { // Modificato
+public class PixelGrid implements PixelGridRemote { // Modificato
 	private final int nRows;
 	private final int nColumns;
 	private final int[][] grid;

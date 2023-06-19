@@ -1,25 +1,32 @@
 package es3.example;
 
+import es3.remoteInterfaces.BrushManagerRemote;
+import es3.remoteInterfaces.PixelGridRemote;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.rmi.RemoteException;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 
 
-public class PixelGridView extends JFrame {
+public class PixelGridView extends JFrame implements WindowListener {
     private final VisualiserPanel panel;
-    private final PixelGrid grid;
+    private final PixelGridRemote grid; // Modificato
+	private final int brushKey; // Modificato
+	private final BrushManagerRemote brushManager; // Modificato
     private final int w, h;
     private final List<PixelGridEventListener> pixelListeners;
 	private final List<MouseMovedListener> movedListener;
-
 	private final List<ColorChangeListener> colorChangeListeners;
     
-    public PixelGridView(PixelGrid grid, BrushManager brushManager, int w, int h){
+    public PixelGridView(PixelGridRemote grid, BrushManagerRemote brushManager, int brushKey, int w, int h) { // Modificato
 		this.grid = grid;
+		this.brushManager = brushManager;
+		this.brushKey = brushKey;
 		this.w = w;
 		this.h = h;
 		pixelListeners = new ArrayList<>();
@@ -74,11 +81,16 @@ public class PixelGridView extends JFrame {
 		return new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int dx = w / grid.getNumColumns();
-				int dy = h / grid.getNumRows();
-				int col = e.getX() / dx;
-				int row = e.getY() / dy;
-				pixelListeners.forEach(l -> l.selectedCell(col, row));
+				try {
+					int dx = w / grid.getNumColumns();
+					int dy = h / grid.getNumRows();
+					int col = e.getX() / dx;
+					int row = e.getY() / dy;
+					pixelListeners.forEach(l -> l.selectedCell(col, row));
+				}catch (RemoteException exception) {
+					System.err.println("PixelGridView exception: " + exception.toString());
+					exception.printStackTrace();
+				}
 			}
 
 			@Override
@@ -106,4 +118,35 @@ public class PixelGridView extends JFrame {
 			}
 		};
 	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		try {
+			brushManager.removeBrush(brushKey);
+		} catch (RemoteException exc){
+			System.err.println("PixelGridView exception: " + exc.toString());
+			exc.printStackTrace();
+		}
+		dispose();
+		System.exit(0);
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {}
+
+	@Override
+	public void windowIconified(WindowEvent e) {}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {}
+
+	@Override
+	public void windowActivated(WindowEvent e) {}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {}
 }
