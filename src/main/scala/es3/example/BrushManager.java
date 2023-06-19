@@ -27,24 +27,13 @@ public class BrushManager implements BrushManagerRemote { // Modificato
         return keyCount++;
     }
 
-    public void updateBrush(final int Key, final Brush brush){ // Modificato
-        brushes.put(Key, brush);
+    public void updateBrush(final int key, final Brush brush){ // Modificato
+        if(brushes.containsKey(key))
+            brushes.put(key, brush);
     }
 
     public void removeBrush(final int key) { // Modificato
         brushes.remove(key);
-    }
-
-    public void updateBrushPosition(final int key, final int x, final int y){ // Modificato
-        brushes.get(key).updatePosition(x, y);
-    }
-
-    public void updateBrushColor(final int key, final int color){ // Modificato
-        brushes.get(key).setColor(color);
-    }
-
-    public int getBrushColor(int key){ // Modificato
-        return brushes.get(key).getColor();
     }
 
     public static class Brush implements Serializable { // Modificato
