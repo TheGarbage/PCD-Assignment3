@@ -34,7 +34,7 @@ public class PixelGridView extends JFrame implements WindowListener {
 		colorChangeListeners = new ArrayList<>();
         setTitle(".:: PixelArt ::.");
 		setResizable(false);
-        panel = new VisualiserPanel(grid, brushManager, w, h);
+        panel = new VisualiserPanel(grid, brushManager, brushKey, w, h);
         panel.addMouseListener(createMouseListener());
 		panel.addMouseMotionListener(createMotionListener());
 		var colorChangeButton = new JButton("Change color");

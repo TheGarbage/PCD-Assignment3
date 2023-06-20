@@ -1,5 +1,7 @@
 package es3.example;
 
+import es2.actors.Receiver;
+import es3.SupportClass.SupportClass;
 import es3.remoteInterfaces.BrushManagerRemote;
 import es3.remoteInterfaces.PixelGridRemote;
 
@@ -16,12 +18,13 @@ public class VisualiserPanel extends JPanel{
     private static final int STROKE_SIZE = 1;
     private final BrushManagerRemote brushManager; // Modificato
     private final PixelGridRemote grid; // Modificato
+    private final int brushKey; // Modificato
     private final int w,h;
 
-    public VisualiserPanel(PixelGridRemote grid, BrushManagerRemote brushManager, int w, int h){ // Modificato
+    public VisualiserPanel(PixelGridRemote grid, BrushManagerRemote brushManager, int brushKey, int w, int h){ // Modificato
         setSize(w,h);
         this.grid = grid;
-        this.w = w;
+        this.brushKey = brushKey;        this.w = w;
         this.h = h;
         this.brushManager = brushManager;
         this.setPreferredSize(new Dimension(w, h));
@@ -61,12 +64,15 @@ public class VisualiserPanel extends JPanel{
             }
 
             brushManager.getBrushes().forEach((key, brush) -> { // Modificato
-                g2.setColor(new Color(brush.getColor()));
+                Color color = new Color(brush.getColor());
+                if(key != brushKey)
+                    color = new Color(color.getRed(), color.getGreen(), color.getBlue(), SupportClass.OTHERS_BRUSH_TRASPARENCY);
+                g2.setColor(color);
                 var circle = new java.awt.geom.Ellipse2D.Double(brush.getX() - BrushManager.BRUSH_SIZE / 2.0, brush.getY() - BrushManager.BRUSH_SIZE / 2.0, BrushManager.BRUSH_SIZE, BrushManager.BRUSH_SIZE);
                 // draw the polygon
                 g2.fill(circle);
                 g2.setStroke(new BasicStroke(STROKE_SIZE));
-                g2.setColor(Color.BLACK);
+                g2.setColor(new Color(0, 0, 0, (key != brushKey) ? SupportClass.OTHERS_BRUSH_TRASPARENCY : SupportClass.LOCAL_BRUSH_TRASPARENCY));
                 g2.draw(circle);
             });
 
