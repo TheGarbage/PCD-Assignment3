@@ -1,5 +1,4 @@
 # PCD-Assignment3
-PCD Assignment #03 - v 0.9-20230530
 				
 L’assignment è articolato in tre punti, relativi alla programmazione concorrente basata su scambio di messaggi - usando gli attori come paradigma di riferimento -  e alla programmazione distribuita.
 

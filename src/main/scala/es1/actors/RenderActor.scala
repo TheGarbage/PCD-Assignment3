@@ -5,10 +5,10 @@ import akka.actor.typed.scaladsl.Behaviors
 import es1.resources.{Counters, Ranking, View}
 
 object RenderActor{
-  def apply(view: View) : Behavior[(Option[Ranking],Option[Counters], Option[String])] = Behaviors.receive { (_, msg) => msg match {
-    case (Some(ranking), _, _) => view.setRankingText(ranking.makeRankingText())
-    case (_, Some(counters), _ ) => view.setIntervalsText(counters.makeCountersText())
-    case (_, _, Some(text)) => view.setFinish(text)
+  def apply(view: View) : Behavior[Ranking | Counters | String] = Behaviors.receive { (_, msg) => msg match {
+    case msg: Ranking => view.setRankingText(msg.makeRankingText())
+    case msg: Counters => view.setIntervalsText(msg.makeCountersText())
+    case msg: String => view.setFinish(msg)
   }
     Behaviors.same
   }

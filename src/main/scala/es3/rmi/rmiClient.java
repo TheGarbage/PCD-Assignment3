@@ -38,10 +38,11 @@ public class rmiClient {
             view.addColorChangedListener(localBrush::setColor);
 
             view.display();
+
             new Thread(() -> {
                 while(true) {
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(SupportClass.REFRESH_TIME);
                         brushManager.updateBrush(brushKey, localBrush);
                     } catch (InterruptedException | RemoteException e) {
                         System.err.println("RefreshThread exception: " + e.toString());

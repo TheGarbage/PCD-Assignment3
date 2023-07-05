@@ -15,7 +15,7 @@ object MainActor{
 
   final case class Msg(d: String, n: Int, maxl: Int, ni: Int, command: Command.Action)
 
-  def apply(view: View, renderActor: ActorRef[(Option[Ranking],Option[Counters], Option[String])], startActor: Option[ActorRef[String]] = None): Behavior[Msg] = Behaviors.receive{ (ctx, msg) =>
+  def apply(view: View, renderActor: ActorRef[Ranking | Counters | String], startActor: Option[ActorRef[String]] = None): Behavior[Msg] = Behaviors.receive{ (ctx, msg) =>
     msg.command match {
       case Command.Start =>
         val directory: File = new File(msg.d)
@@ -27,8 +27,8 @@ object MainActor{
           view.setFinish(" The selected directory is empty")
           Behaviors.same
         } else {
-          val newStartActor = ctx.spawn(StartActor(renderActor, directory,msg.n, msg.maxl, msg.ni), System.currentTimeMillis() + "StartActor")
-          MainActor(view, renderActor,Some(newStartActor))
+          val newStartActor = ctx.spawnAnonymous(StartActor(renderActor, directory,msg.n, msg.maxl, msg.ni))
+          MainActor(view, renderActor, Some(newStartActor))
         }
       case Command.Stop =>
         startActor match {

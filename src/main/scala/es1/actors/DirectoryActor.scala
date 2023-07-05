@@ -8,8 +8,8 @@ import java.io.File
 import scala.annotation.tailrec
 
 object DirectoryActor {
-  def makeChild(name: String, behavior: Behavior[File], ctx: ActorContext[File]): Int = {
-    val child = ctx.spawn(behavior, name)
+  def makeChild(behavior: Behavior[File], ctx: ActorContext[File]): Int = {
+    val child = ctx.spawnAnonymous(behavior)
     ctx.watch(child)
     1
   }
@@ -21,9 +21,9 @@ object DirectoryActor {
       case head :: tail =>
         head match {
           case file: File if file.isFile && file.getName.endsWith(".java") =>
-            scanFiles(tail, count + makeChild(ctx.self.path.name + "-" + count, FileActor(file, rankingActor, countersActor), ctx))
+            scanFiles(tail, count + makeChild(FileActor(file, rankingActor, countersActor), ctx))
           case subDirectory: File if subDirectory.isDirectory && subDirectory.listFiles().nonEmpty =>
-            scanFiles(tail, count + makeChild(ctx.self.path.name + "-" + count, DirectoryActor(subDirectory, rankingActor, countersActor), ctx))
+            scanFiles(tail, count + makeChild(DirectoryActor(subDirectory, rankingActor, countersActor), ctx))
           case _ =>
             scanFiles(tail, count)
         }

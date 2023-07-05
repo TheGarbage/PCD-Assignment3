@@ -13,13 +13,13 @@ object Sender {
 
   val Service: ServiceKey[Msg] = ServiceKey[Msg]("Receiver")
 
-  private def senderBehavior(childReceiver: ActorRef[Msg], receiverList: List[ActorRef[Msg]] = List.empty): Behavior[Msg | Receptionist.Listing | ClusterEvent.MemberRemoved] = Behaviors.receive { (ctx, msg) =>
+  private def senderBehavior(childReceiver: ActorRef[Msg], receiverList: List[ActorRef[Msg]] = List.empty): Behavior[Msg | Receptionist.Listing] = Behaviors.receive { (ctx, msg) =>
     msg match
       case msg: Receptionist.Listing =>
         val updateReveiverList = msg.serviceInstances(Service).toList
         if (updateReveiverList.size > receiverList.size)
           updateReveiverList.foreach(receiver =>
-            if (!receiverList.contains(receiver))
+            if (!receiverList.contains(receiver) && receiver != childReceiver)
               childReceiver ! Msg(Command.sendInit, None, None, None, None, None, Some(receiver)))
         else
           receiverList.foreach(receiver =>
@@ -30,12 +30,9 @@ object Sender {
       case msg: Msg =>
         receiverList.foreach(_ ! msg)
         Behaviors.same
-      case event: ClusterEvent.MemberRemoved =>
-        println(event.member.address)
-        Behaviors.same
   }
 
-  def apply(): Behavior[Msg | Receptionist.Listing | ClusterEvent.MemberRemoved] = Behaviors.setup { ctx =>
+  def apply(): Behavior[Msg | Receptionist.Listing] = Behaviors.setup { ctx =>
     ctx.system.receptionist ! Receptionist.subscribe(Service, ctx.self)
     val brushes = new BrushManager()
     val grid = new PixelGrid(40, 40)

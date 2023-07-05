@@ -7,12 +7,12 @@ import es1.resources.{Counters, Ranking, View}
 import java.io.File
 
 object StartActor {
-  def apply(renderActor: ActorRef[(Option[Ranking],Option[Counters], Option[String])], directory: File, n: Int, maxl: Int, ni: Int): Behavior[String] = Behaviors.setup { ctx =>
-    val rankingActor = ctx.spawn(RankingActor(Ranking(n), renderActor), System.currentTimeMillis() + "RankingActor")
+  def apply(renderActor: ActorRef[Ranking | Counters | String], directory: File, n: Int, maxl: Int, ni: Int): Behavior[String] = Behaviors.setup { ctx =>
+    val rankingActor = ctx.spawnAnonymous(RankingActor(Ranking(n), renderActor))
     ctx.watch(rankingActor)
-    val countersActor = ctx.spawn(CountersActor(Counters(maxl, ni), renderActor), System.currentTimeMillis() + "CounterActor")
+    val countersActor = ctx.spawnAnonymous(CountersActor(Counters(maxl, ni), renderActor))
     ctx.watch(countersActor)
-    val directoryActor = ctx.spawn(DirectoryActor(directory, rankingActor, countersActor), System.currentTimeMillis() + "Directory")
+    val directoryActor = ctx.spawnAnonymous(DirectoryActor(directory, rankingActor, countersActor))
     ctx.watch(directoryActor)
     ProcessWaiterActor(System.currentTimeMillis(), renderActor, rankingActor, countersActor)
   }

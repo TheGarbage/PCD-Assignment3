@@ -29,7 +29,7 @@ case class View(titleText: String) extends JFrame(titleText) with ActionListener
   private val stopButton = new JButton("   Stop   ")
   private val fileChooser = new JFileChooser("/")
 
-  val system: ActorSystem[MainActor.Msg] = ActorSystem(BootActor(this), name = "Boot")
+  val system: ActorSystem[MainActor.Msg] = ActorSystem(BootActor(this), name = "BootActor")
 
   initializeUI()
 
